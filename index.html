@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CTF Challenge - Logo Quiz</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0, 255, 136, 0.03) 2px,
+                rgba(0, 255, 136, 0.03) 4px
+            );
+            animation: scan 8s linear infinite;
+        }
+
+        @keyframes scan {
+            0% { transform: translateY(-50%); }
+            100% { transform: translateY(0%); }
+        }
+
+        .container {
+            background: rgba(15, 12, 41, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 0 50px rgba(0, 255, 136, 0.3);
+            padding: 40px;
+            max-width: 700px;
+            width: 100%;
+            text-align: center;
+            border: 2px solid rgba(0, 255, 136, 0.3);
+            position: relative;
+            z-index: 1;
+        }
+
+        h1 {
+            color: #00ff88;
+            margin-bottom: 10px;
+            font-size: 2em;
+            text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+            font-weight: normal;
+            letter-spacing: 2px;
+        }
+
+        .subtitle {
+            color: #888;
+            font-size: 0.9em;
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+
+        .score {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(0, 255, 136, 0.05);
+            border-radius: 10px;
+            border: 1px solid rgba(0, 255, 136, 0.2);
+        }
+
+        .score-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .score-label {
+            font-size: 0.9em;
+            color: #888;
+        }
+
+        .score-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #00ff88;
+            text-shadow: 0 0 5px rgba(0, 255, 136, 0.5);
+        }
+
+        .logo-container {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 15px;
+            padding: 40px;
+            margin: 30px 0;
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            position: relative;
+        }
+
+        .logo {
+            max-width: 200px;
+            max-height: 200px;
+            object-fit: contain;
+            margin-bottom: 20px;
+            filter: drop-shadow(0 0 15px rgba(0, 255, 136, 0.3));
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .club-name {
+            font-size: 1.2em;
+            color: #00ff88;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .option-btn {
+            padding: 15px 20px;
+            font-size: 1.1em;
+            border: 2px solid #00ff88;
+            background: rgba(0, 255, 136, 0.05);
+            color: #00ff88;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+        }
+
+        .option-btn:hover {
+            background: rgba(0, 255, 136, 0.2);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(0, 255, 136, 0.4);
+        }
+
+        .option-btn.correct {
+            background: rgba(0, 255, 136, 0.3);
+            border-color: #00ff88;
+            animation: pulse 0.5s;
+        }
+
+        .option-btn.wrong {
+            background: rgba(255, 0, 85, 0.3);
+            border-color: #ff0055;
+            animation: shake 0.5s;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .option-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .message {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin: 20px 0;
+            min-height: 30px;
+        }
+
+        .message.correct { 
+            color: #00ff88; 
+            text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+        }
+        
+        .message.wrong { 
+            color: #ff0055;
+            text-shadow: 0 0 10px rgba(255, 0, 85, 0.5);
+        }
+
+        .next-btn {
+            padding: 15px 40px;
+            font-size: 1.2em;
+            background: #00ff88;
+            color: #0f0c29;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+            margin-top: 20px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .next-btn:hover {
+            background: #00cc6e;
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+        }
+
+        .restart-btn {
+            padding: 15px 40px;
+            font-size: 1.2em;
+            background: #00ff88;
+            color: #0f0c29;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+            margin-top: 20px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .restart-btn:hover {
+            background: #00cc6e;
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+        }
+
+        .final-score {
+            font-size: 2em;
+            color: #00ff88;
+            margin: 20px 0;
+            font-weight: bold;
+            text-shadow: 0 0 15px rgba(0, 255, 136, 0.5);
+        }
+
+        .game-over {
+            display: none;
+        }
+
+        .flag-reveal {
+            background: rgba(0, 0, 0, 0.6);
+            border: 2px solid #00ff88;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            color: #00ff88;
+            animation: glow 2s infinite;
+        }
+
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 10px rgba(0, 255, 136, 0.3); }
+            50% { box-shadow: 0 0 20px rgba(0, 255, 136, 0.6); }
+        }
+
+        .flag-text {
+            font-size: 1.2em;
+            margin-top: 10px;
+            word-break: break-all;
+            letter-spacing: 2px;
+        }
+
+        .ctf-badge {
+            display: inline-block;
+            background: rgba(255, 0, 85, 0.2);
+            color: #ff0055;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.8em;
+            margin-left: 10px;
+            border: 1px solid #ff0055;
+        }
+
+        .locked-flag {
+            color: #ff0055;
+            font-size: 1.1em;
+            padding: 15px;
+            background: rgba(255, 0, 85, 0.1);
+            border: 1px solid #ff0055;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏴‍☠️ CTF CHALLENGE <span class="ctf-badge">LEVEL 1</span></h1>
+        <div class="subtitle">/// Complete all 10 questions to capture the flag //</div>
+        
+        <div class="score">
+            <div class="score-item">
+                <span class="score-label">SCORE</span>
+                <span class="score-value" id="score">0</span>
+            </div>
+            <div class="score-item">
+                <span class="score-label">PROGRESS</span>
+                <span class="score-value" id="question">1/10</span>
+            </div>
+        </div>
+
+        <div id="game-area">
+            <div class="logo-container">
+                <img class="logo" id="logo" src="" alt="Club Logo">
+                <div class="club-name" id="club-hint">IDENTIFY THE LOGO</div>
+            </div>
+
+            <div class="message" id="message"></div>
+
+            <div class="options" id="options"></div>
+
+            <button class="next-btn" id="next-btn" style="display: none;">NEXT_CHALLENGE >>></button>
+        </div>
+
+        <div class="game-over" id="game-over">
+            <h2 style="color: #00ff88; text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);">🎯 CHALLENGE COMPLETE!</h2>
+            <div class="final-score" id="final-score"></div>
+            <div id="flag-container"></div>
+            <button class="restart-btn" id="restart-btn">RESTART_CHALLENGE</button>
+        </div>
+    </div>
+
+    <script>
+        // 📂 Structure des fichiers:
+        // ton-projet/
+        // ├── index.html
+        // └── images/
+        //     ├── barcelona.png (ou .svg)
+        //     ├── real-madrid.png
+        //     ├── wydad.png
+        //     ├── raja.png
+        //     ├── dortmund.png
+        //     ├── juventus.png
+        //     ├── liverpool.png
+        //     ├── chelsea.png
+        //     ├── athletic-bilbao.png
+        //     └── cyberdune.png
+
+        const clubs = [
+            { 
+                logo: 'images/barcelona.png',
+                name: 'برشلونة', 
+                options: ['برشلونة', 'ريال مدريد', 'أتلتيكو مدريد', 'إشبيلية'] 
+            },
+            { 
+                logo: 'images/real-madrid.png',
+                name: 'ريال مدريد', 
+                options: ['ريال مدريد', 'فالنسيا', 'فياريال', 'ريال سوسيداد'] 
+            },
+            { 
+                logo: 'images/wydad.png',
+                name: 'الوداد البيضاوي', 
+                options: ['الوداد البيضاوي', 'الرجاء الرياضي', 'الجيش الملكي', 'المغرب التطواني'] 
+            },
+            { 
+                logo: 'images/raja.png',
+                name: 'الرجاء الرياضي', 
+                options: ['الرجاء الرياضي', 'الوداد البيضاوي', 'الدفاع الحسني الجديدي', 'اتحاد طنجة'] 
+            },
+            { 
+                logo: 'images/dortmund.png',
+                name: 'بروسيا دورتموند', 
+                options: ['بروسيا دورتموند', 'بايرن ميونخ', 'شالكه', 'لايبزيغ'] 
+            },
+            { 
+                logo: 'images/juventus.png',
+                name: 'يوفنتوس', 
+                options: ['يوفنتوس', 'إنتر ميلان', 'ميلان', 'روما'] 
+            },
+            { 
+                logo: 'images/liverpool.png',
+                name: 'ليفربول', 
+                options: ['ليفربول', 'مانشستر يونايتد', 'أرسنال', 'ساوثهامبتون'] 
+            },
+            { 
+                logo: 'images/chelsea.png',
+                name: 'تشيلسي', 
+                options: ['تشيلسي', 'مانشستر سيتي', 'إيفرتون', 'ليستر سيتي'] 
+            },
+            { 
+                logo: 'images/athletic-bilbao.png',
+                name: 'أتلتيك بلباو', 
+                options: ['أتلتيك بلباو', 'أتلتيكو مدريد', 'أوساسونا', 'جيرونا'] 
+            },
+            { 
+                logo: 'images/cyberdune.png',
+                name: 'CyberDune', 
+                options: ['CyberDune', 'HackTheBox', 'TryHackMe', 'CyberTalents'], 
+                isFinal: true 
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let answered = false;
+
+        function shuffle(array) {
+            return array.sort(() => Math.random() - 0.5);
+        }
+
+        function loadQuestion() {
+            answered = false;
+            const club = clubs[currentQuestion];
+            
+            if (club.isFinal) {
+                document.querySelector('.logo-container').style.background = 'rgba(255, 0, 85, 0.1)';
+                document.querySelector('.logo-container').style.borderColor = '#ff0055';
+                document.getElementById('club-hint').textContent = '⚠️ FINAL CHALLENGE - HACKER COMMUNITY';
+                document.getElementById('club-hint').style.color = '#ff0055';
+            } else {
+                document.querySelector('.logo-container').style.background = 'rgba(0, 0, 0, 0.4)';
+                document.querySelector('.logo-container').style.borderColor = 'rgba(0, 255, 136, 0.2)';
+                document.getElementById('club-hint').textContent = 'IDENTIFY THE LOGO';
+                document.getElementById('club-hint').style.color = '#00ff88';
+            }
+            
+            document.getElementById('logo').src = club.logo;
+            document.getElementById('message').textContent = '';
+            document.getElementById('next-btn').style.display = 'none';
+            
+            const optionsDiv = document.getElementById('options');
+            optionsDiv.innerHTML = '';
+            
+            const shuffledOptions = shuffle([...club.options]);
+            
+            shuffledOptions.forEach(option => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.textContent = option;
+                btn.onclick = () => checkAnswer(option, club.name, btn, club.isFinal);
+                optionsDiv.appendChild(btn);
+            });
+            
+            document.getElementById('question').textContent = `${currentQuestion + 1}/10`;
+        }
+
+        function checkAnswer(selected, correct, btn, isFinal) {
+            if (answered) return;
+            answered = true;
+            
+            const allBtns = document.querySelectorAll('.option-btn');
+            allBtns.forEach(b => b.disabled = true);
+            
+            const messageDiv = document.getElementById('message');
+            
+            if (selected === correct) {
+                btn.classList.add('correct');
+                score += 10;
+                document.getElementById('score').textContent = score;
+                
+                if (isFinal) {
+                    messageDiv.textContent = '🎉 CORRECT! Welcome to CyberDune!';
+                } else {
+                    messageDiv.textContent = '✓ ACCESS_GRANTED';
+                }
+                messageDiv.className = 'message correct';
+            } else {
+                btn.classList.add('wrong');
+                allBtns.forEach(b => {
+                    if (b.textContent === correct) {
+                        b.classList.add('correct');
+                    }
+                });
+                
+                if (isFinal) {
+                    messageDiv.textContent = `✗ WRONG! The answer was: ${correct}`;
+                } else {
+                    messageDiv.textContent = `✗ ACCESS_DENIED - Answer: ${correct}`;
+                }
+                messageDiv.className = 'message wrong';
+            }
+            
+            document.getElementById('club-hint').textContent = correct;
+            document.getElementById('next-btn').style.display = 'inline-block';
+        }
+
+        document.getElementById('next-btn').onclick = () => {
+            currentQuestion++;
+            if (currentQuestion < clubs.length) {
+                loadQuestion();
+            } else {
+                showGameOver();
+            }
+        };
+
+        function showGameOver() {
+            document.getElementById('game-area').style.display = 'none';
+            document.getElementById('game-over').style.display = 'block';
+            
+            let message = '';
+            const flagContainer = document.getElementById('flag-container');
+            
+            if (score === 100) {
+                message = 'PERFECT SCORE! All answers correct! 🏆';
+                flagContainer.innerHTML = `
+                    <div class="flag-reveal">
+                        <div style="font-size: 1.3em; margin-bottom: 10px;">🚩 FLAG CAPTURED!</div>
+                        <div class="flag-text">CYBERDUNE{mar7ba_bikom_f_cybersecurity}</div>
+                        <div style="margin-top: 15px; color: #888; font-size: 0.9em;">Congratulations! You've completed the challenge!</div>
+                    </div>
+                `;
+            } else {
+                message = `You got ${score}/100 points`;
+                flagContainer.innerHTML = `
+                    <div class="locked-flag">
+                        <div style="font-size: 1.2em; margin-bottom: 10px;">🔒 FLAG LOCKED</div>
+                        <div>You must answer ALL 10 questions correctly to capture the flag!</div>
+                        <div style="margin-top: 10px; font-size: 0.9em;">Try again and get a perfect score!</div>
+                    </div>
+                `;
+            }
+            
+            document.getElementById('final-score').textContent = message;
+        }
+
+        document.getElementById('restart-btn').onclick = () => {
+            currentQuestion = 0;
+            score = 0;
+            document.getElementById('score').textContent = '0';
+            document.getElementById('game-area').style.display = 'block';
+            document.getElementById('game-over').style.display = 'none';
+            loadQuestion();
+        };
+
+        loadQuestion();
+    </script>
+</body>
+</html>
